@@ -209,13 +209,13 @@ form.addEventListener('submit', async (e) => {
       const ext = pendingFile.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
       
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabaseClient.storage
         .from('posters')
         .upload(fileName, pendingFile);
         
       if (uploadError) throw uploadError;
       
-      const { data: { publicUrl } } = supabase.storage
+      const { data: { publicUrl } } = supabaseClient.storage
         .from('posters')
         .getPublicUrl(fileName);
         

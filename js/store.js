@@ -2,7 +2,7 @@
    YENOVA — event data layer (Supabase version)
    ========================================================================== */
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const YENOVA_DEFAULT_EVENTS = [
   {
@@ -73,7 +73,7 @@ function yenovaMakeId(title){
 }
 
 async function yenovaLoadEvents(){
-  const { data, error } = await supabase.from('events').select('*');
+  const { data, error } = await supabaseClient.from('events').select('*');
   if (error) {
     console.error('[yenova] could not read stored events', error);
     return [];
@@ -83,25 +83,25 @@ async function yenovaLoadEvents(){
 
 async function yenovaAddEvent(event){
   const withId = { ...event, id: event.id || yenovaMakeId(event.title) };
-  const { data, error } = await supabase.from('events').insert([withId]).select();
+  const { data, error } = await supabaseClient.from('events').insert([withId]).select();
   if (error) throw error;
   return data[0];
 }
 
 async function yenovaUpdateEvent(id, updates){
-  const { data, error } = await supabase.from('events').update(updates).eq('id', id).select();
+  const { data, error } = await supabaseClient.from('events').update(updates).eq('id', id).select();
   if (error) throw error;
   return data ? data[0] : null;
 }
 
 async function yenovaDeleteEvent(id){
-  const { error } = await supabase.from('events').delete().eq('id', id);
+  const { error } = await supabaseClient.from('events').delete().eq('id', id);
   if (error) throw error;
 }
 
 async function yenovaResetEvents(){
-  await supabase.from('events').delete().neq('id', 'dummy');
-  await supabase.from('events').insert(YENOVA_DEFAULT_EVENTS);
+  await supabaseClient.from('events').delete().neq('id', 'dummy');
+  await supabaseClient.from('events').insert(YENOVA_DEFAULT_EVENTS);
 }
 
 function yenovaEventStatus(event){
