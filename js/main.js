@@ -89,9 +89,15 @@
     return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
   }
 
-  async function renderEvents(events) {
+  async function render(filter){
     const grid = document.getElementById('events-grid');
     if(!grid) return;
+    let events = await yenovaLoadEvents();
+    // newest first
+    events.sort((a,b) => new Date(b.date) - new Date(a.date));
+    if(filter && filter !== 'All'){
+      events = events.filter(e => e.category === filter);
+    }
     if(events.length === 0){
       grid.innerHTML = `<div class="events-empty">No events in this category yet — check back soon.</div>`;
       return;
