@@ -210,6 +210,34 @@ button{ font-family:inherit; cursor:pointer; }
 }
 .filter-chip.active, .filter-chip:hover{ color:var(--ink); border-color:var(--violet); background:rgba(139,92,246,.1); }
 
+.gallery-grid {
+  display: flex;
+  overflow-x: auto;
+  gap: 16px;
+  padding-bottom: 16px;
+  scroll-snap-type: x mandatory;
+}
+.gallery-grid::-webkit-scrollbar {
+  height: 8px;
+}
+.gallery-grid::-webkit-scrollbar-track {
+  background: var(--surface);
+  border-radius: 4px;
+}
+.gallery-grid::-webkit-scrollbar-thumb {
+  background: var(--ink-dim);
+  border-radius: 4px;
+}
+.gallery-item {
+  flex: 0 0 300px;
+  scroll-snap-align: center;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+  aspect-ratio: 1;
+}
+
 .events-grid{
   display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:26px;
 }
