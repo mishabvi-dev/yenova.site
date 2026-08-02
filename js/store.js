@@ -120,3 +120,17 @@ function yenovaFormatDateRange(event){
   }
   return start;
 }
+
+async function yenovaLoadGalleryFiles(){
+  const { data, error } = await supabaseClient.storage.from('gallery').list();
+  if (error) {
+    console.error('[yenova] could not read gallery', error);
+    return [];
+  }
+  return data.filter(f => f.name !== '.emptyFolderPlaceholder').map(file => {
+    return {
+      name: file.name,
+      url: supabaseClient.storage.from('gallery').getPublicUrl(file.name).data.publicUrl
+    };
+  });
+}

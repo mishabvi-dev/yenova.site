@@ -76,6 +76,20 @@
         <p>No events yet.</p>
         <button class="btn btn-primary" onclick="openModal(null)">+ Add your first event</button>
       </div>
+
+      <div class="admin-head" style="margin-top: 60px;">
+        <div>
+          <h2>Gallery</h2>
+          <p>Manage photos in the public gallery.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <input type="file" id="gallery-upload-input" accept="image/*" multiple style="display: none;">
+          <button id="gallery-upload-btn" class="btn btn-primary" onclick="document.getElementById('gallery-upload-input').click()">+ Upload Photos</button>
+        </div>
+      </div>
+      <div id="admin-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-top: 20px;">
+        <!-- Admin gallery populated here -->
+      </div>
     </div>
   </div>
 

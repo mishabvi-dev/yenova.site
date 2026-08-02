@@ -89,15 +89,9 @@
     return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
   }
 
-  async function render(filter){
+  async function renderEvents(events) {
     const grid = document.getElementById('events-grid');
     if(!grid) return;
-    let events = await yenovaLoadEvents();
-    // newest first
-    events.sort((a,b) => new Date(b.date) - new Date(a.date));
-    if(filter && filter !== 'All'){
-      events = events.filter(e => e.category === filter);
-    }
     if(events.length === 0){
       grid.innerHTML = `<div class="events-empty">No events in this category yet — check back soon.</div>`;
       return;
@@ -122,9 +116,25 @@
     });
   }
 
+  async function renderGallery() {
+    const grid = document.getElementById('gallery-grid');
+    if(!grid) return;
+    const galleryData = await yenovaLoadGalleryFiles();
+    if(galleryData && galleryData.length) {
+      grid.innerHTML = galleryData.map(img => `
+        <div class="gallery-item">
+          <img src="${img.url}" alt="Gallery Image" loading="lazy">
+        </div>
+      `).join('');
+    } else {
+      grid.innerHTML = '<div class="events-empty" style="grid-column: 1/-1;">Gallery is currently empty.</div>';
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     await buildFilters();
     await render('All');
+    await renderGallery();
     fetchCounts();
     const yearEl = document.getElementById('year');
     if(yearEl) yearEl.textContent = new Date().getFullYear();

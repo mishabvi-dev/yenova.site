@@ -33,7 +33,10 @@ async function renderAuthState(){
   document.getElementById('login-wrap').classList.toggle('hidden', loggedIn);
   document.getElementById('admin-body').classList.toggle('hidden', !loggedIn);
   document.getElementById('logout-btn').classList.toggle('hidden', !loggedIn);
-  if(loggedIn) await renderTable();
+  if(loggedIn) {
+    await renderTable();
+    await renderAdminGallery();
+  }
 }
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -284,3 +287,59 @@ document.getElementById('reset-btn').addEventListener('click', async () => {
 });
 
 renderAuthState();
+
+/* ---------------------------- Gallery ---------------------------- */
+async function renderAdminGallery() {
+  const grid = document.getElementById('admin-gallery-grid');
+  if (!grid) return;
+  const files = await yenovaLoadGalleryFiles();
+  
+  if(files.length === 0) {
+    grid.innerHTML = '<div style="grid-column: 1/-1;">No photos in gallery.</div>';
+    return;
+  }
+  
+  grid.innerHTML = files.map(file => `
+    <div class="gallery-item" style="position:relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #222;">
+      <img src="${file.url}" style="width:100%; height:100%; object-fit:cover;">
+      <button class="btn btn-primary" style="position:absolute; top:4px; right:4px; padding:4px 8px; font-size:12px; background:var(--danger); border-color:var(--danger);" onclick="deleteGalleryImage('${file.name}')">Delete</button>
+    </div>
+  `).join('');
+}
+
+window.deleteGalleryImage = async function(fileName) {
+  if(!confirm('Delete this image?')) return;
+  const { error } = await supabaseClient.storage.from('gallery').remove([fileName]);
+  if(error) {
+    console.error(error);
+    showToast('Failed to delete image');
+  } else {
+    showToast('Image deleted');
+    await renderAdminGallery();
+  }
+};
+
+const galleryUploadInput = document.getElementById('gallery-upload-input');
+if(galleryUploadInput) {
+  galleryUploadInput.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files);
+    if(files.length === 0) return;
+    
+    const btn = document.getElementById('gallery-upload-btn');
+    btn.disabled = true;
+    btn.textContent = 'Uploading...';
+    
+    for(const file of files) {
+      const ext = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+      const { error } = await supabaseClient.storage.from('gallery').upload(fileName, file);
+      if (error) console.error(error);
+    }
+    
+    galleryUploadInput.value = '';
+    btn.disabled = false;
+    btn.textContent = '+ Upload Photos';
+    showToast('Upload complete');
+    await renderAdminGallery();
+  });
+}
