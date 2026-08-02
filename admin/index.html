@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yenova Admin — manage events</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div class="admin-shell">
+
+  <div class="admin-topbar">
+    <a href="../index.html" class="brand"><img src="../assets/logo.png" alt="Yenova logo"><span class="brand-word">YENOVA</span></a>
+    <div class="admin-actions">
+      <span class="badge">Admin</span>
+      <a href="../index.html" class="link-btn">View site ↗</a>
+      <button id="logout-btn" class="icon-btn hidden">Log out</button>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="login-wrap" class="login-wrap">
+    <div class="login-card">
+      <img src="../assets/logo.png" alt="Yenova logo">
+      <h2>Admin sign in</h2>
+      <p>Manage the events shown on yenova.site</p>
+      <form id="login-form">
+        <div class="field">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" autocomplete="current-password" required>
+        </div>
+        <div class="form-error" id="login-error"></div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Sign in</button>
+      </form>
+      <p class="hint">Default password is set in js/admin.js — change it before going live. See README.md.</p>
+    </div>
+  </div>
+
+  <!-- ADMIN BODY -->
+  <div id="admin-body" class="admin-body hidden">
+    <div class="container">
+      <div class="admin-head">
+        <div>
+          <h1>Events</h1>
+          <p>Add, edit or remove the programs shown on the public site. Changes appear immediately.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button id="reset-btn" class="btn btn-ghost">Reset to defaults</button>
+          <button id="add-event-btn" class="btn btn-primary">+ Add event</button>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap" id="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Poster</th>
+              <th>Event</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="empty-state hidden" id="empty-state">
+        <p>No events yet.</p>
+        <button class="btn btn-primary" onclick="openModal(null)">+ Add your first event</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop hidden" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-title">Add event</h3>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <form id="event-form">
+      <div class="form-grid">
+        <div class="field span-2">
+          <label>Title</label>
+          <input name="title" required placeholder="e.g. Hack the Campus">
+        </div>
+        <div class="field span-2">
+          <label>Subtitle</label>
+          <input name="subtitle" placeholder="e.g. 24-hour build sprint">
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <select name="category">
+            <option>Workshop</option>
+            <option>Training</option>
+            <option>Talk</option>
+            <option>Esports</option>
+            <option>Hackathon</option>
+            <option>Seminar</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Venue</label>
+          <input name="venue" placeholder="e.g. YMK Auditorium">
+        </div>
+        <div class="field">
+          <label>Start date</label>
+          <input type="date" name="date" required>
+        </div>
+        <div class="field">
+          <label>End date (optional)</label>
+          <input type="date" name="endDate">
+        </div>
+        <div class="field">
+          <label>Time</label>
+          <input name="time" placeholder="e.g. 9:30 AM – 3:30 PM">
+        </div>
+        <div class="field">
+          <label>Registration Limit (optional)</label>
+          <input type="number" min="1" name="registrationLimit" placeholder="e.g. 50">
+        </div>
+        <div class="field span-2">
+          <label>Description</label>
+          <textarea name="description" placeholder="What happens at this event?"></textarea>
+        </div>
+        <div class="field span-2">
+          <label>Speaker (optional)</label>
+          <input name="speaker" placeholder="e.g. Ahsaaf S — Founding Engineer, Risknox.Ai">
+        </div>
+        <div class="field span-2">
+          <label>Organizers (one per line)</label>
+          <textarea name="organizers" placeholder="Dr. Rathnakar Shetty — Head of Department"></textarea>
+        </div>
+        <div class="field span-2">
+          <label>Poster image</label>
+          <input type="file" id="image-input" accept="image/*">
+          <img id="img-preview" class="img-preview hidden" alt="Poster preview">
+        </div>
+      </div>
+      <div class="form-error" id="form-error"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancel-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save event</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../js/store.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>
