@@ -6,3 +6,6 @@
    instead of silently failing.
    ========================================================================== */
 const YENOVA_FORM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwOwT2Z-71Oj-b47EEPPnt6mhcjBvF2_cdA6bEyeqp0n4Y9GzKTmbL1sS8USpzO8W1cyw/exec';
+
+const SUPABASE_URL = 'https://zejiktrnsppshtvnljge.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_q5ZHQ1eSVyqL7xB85BvcEQ_fEmKUL86';

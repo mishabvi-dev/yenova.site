@@ -89,12 +89,12 @@
     return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
   }
 
-  function render(filter){
+  async function render(filter){
     const grid = document.getElementById('events-grid');
     if(!grid) return;
-    let events = yenovaLoadEvents();
+    let events = await yenovaLoadEvents();
     // newest first
-    events = events.slice().sort((a,b) => new Date(b.date) - new Date(a.date));
+    events.sort((a,b) => new Date(b.date) - new Date(a.date));
     if(filter && filter !== 'All'){
       events = events.filter(e => e.category === filter);
     }
@@ -107,10 +107,10 @@
     if (registrationCounts) updateButtonsWithLimits();
   }
 
-  function buildFilters(){
+  async function buildFilters(){
     const row = document.getElementById('filter-row');
     if(!row) return;
-    const events = yenovaLoadEvents();
+    const events = await yenovaLoadEvents();
     const cats = ['All', ...new Set(events.map(e => e.category).filter(Boolean))];
     row.innerHTML = cats.map((c,i) => `<button class="filter-chip ${i===0?'active':''}" data-cat="${c}">${c}</button>`).join('');
     row.querySelectorAll('.filter-chip').forEach(btn => {
@@ -122,9 +122,9 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    buildFilters();
-    render('All');
+  document.addEventListener('DOMContentLoaded', async () => {
+    await buildFilters();
+    await render('All');
     fetchCounts();
     const yearEl = document.getElementById('year');
     if(yearEl) yearEl.textContent = new Date().getFullYear();

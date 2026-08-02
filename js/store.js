@@ -1,11 +1,8 @@
 /* ==========================================================================
-   YENOVA — event data layer
-   All events live in the browser's localStorage under YENOVA_STORE_KEY, so the
-   public site (index.html) and the admin panel (admin/index.html) always read
-   the same data. See README.md for how to replace this with a real backend.
+   YENOVA — event data layer (Supabase version)
    ========================================================================== */
 
-const YENOVA_STORE_KEY = 'yenova_events_v1';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const YENOVA_DEFAULT_EVENTS = [
   {
@@ -20,7 +17,8 @@ const YENOVA_DEFAULT_EVENTS = [
     description: 'A career-readiness session on cracking your first tech job, led by a founding engineer building AI risk infrastructure. Covers resumes, interviews and what hiring managers actually look for.',
     speaker: 'Ahsaaf S — Founding Engineer, Risknox.Ai',
     organizers: ['Dr. Rathnakar Shetty — Head of Department', 'Ms. Pooja Kottary — Lecturer'],
-    image: '/assets/events/job-essentials.jpg'
+    registrationLimit: null,
+    image: 'assets/events/job-essentials.jpg'
   },
   {
     id: 'recon-z-2026',
@@ -34,7 +32,8 @@ const YENOVA_DEFAULT_EVENTS = [
     description: 'A two-day hands-on training program in digital forensics and criminal investigation, presented in association with Yenova IT Club — covering evidence handling, device analysis and real investigative workflows.',
     speaker: '',
     organizers: ['Mr. Parameshwar Hegde — Asst. Professor', 'Dr. Rathnakar Shetty — Head of Department', 'Ms. Pooja Kottary — Lecturer'],
-    image: '/assets/events/recon-z.jpg'
+    registrationLimit: null,
+    image: 'assets/events/recon-z.jpg'
   },
   {
     id: 'mini-militia-2026',
@@ -47,9 +46,9 @@ const YENOVA_DEFAULT_EVENTS = [
     venue: 'YMK',
     description: 'A high-energy 5v5 Mini Militia showdown open to every department, run by the CS department to bring the campus gaming community together for a day of trash talk and teamwork.',
     speaker: '',
-    prize: '₹1,000 prize pool',
+    registrationLimit: null,
     organizers: ['Dr. Rathnakar Shetty — Head of Department', 'Ms. Pooja Kottary — Lecturer'],
-    image: '/assets/events/mini-militia.jpg'
+    image: 'assets/events/mini-militia.jpg'
   },
   {
     id: 'the-beginning-webdev-2026',
@@ -62,65 +61,47 @@ const YENOVA_DEFAULT_EVENTS = [
     venue: 'YMK Auditorium',
     description: 'A value-added course that takes students from zero to their first deployed web page — HTML, CSS and the habits that carry into real projects.',
     speaker: '',
+    registrationLimit: null,
     organizers: ['Dr. Rathnakar Shetty — Head of Department', 'Dr. Parameshwar R Hegde — Assistant Professor', 'Ms. Pooja Kottary — Faculty Coordinator'],
-    image: '/assets/events/web-dev.jpg'
+    image: 'assets/events/web-dev.jpg'
   }
 ];
-
-function yenovaClone(obj){
-  return JSON.parse(JSON.stringify(obj));
-}
-
-function yenovaLoadEvents(){
-  try{
-    const raw = localStorage.getItem(YENOVA_STORE_KEY);
-    if(!raw){
-      yenovaSaveEvents(YENOVA_DEFAULT_EVENTS);
-      return yenovaClone(YENOVA_DEFAULT_EVENTS);
-    }
-    const parsed = JSON.parse(raw);
-    if(!Array.isArray(parsed)) throw new Error('bad shape');
-    return parsed;
-  }catch(err){
-    console.error('[yenova] could not read stored events, reseeding defaults', err);
-    yenovaSaveEvents(YENOVA_DEFAULT_EVENTS);
-    return yenovaClone(YENOVA_DEFAULT_EVENTS);
-  }
-}
-
-function yenovaSaveEvents(events){
-  localStorage.setItem(YENOVA_STORE_KEY, JSON.stringify(events));
-}
 
 function yenovaMakeId(title){
   const slug = (title || 'event').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
   return `${slug || 'event'}-${Date.now().toString(36)}`;
 }
 
-function yenovaAddEvent(event){
-  const events = yenovaLoadEvents();
+async function yenovaLoadEvents(){
+  const { data, error } = await supabase.from('events').select('*');
+  if (error) {
+    console.error('[yenova] could not read stored events', error);
+    return [];
+  }
+  return data || [];
+}
+
+async function yenovaAddEvent(event){
   const withId = { ...event, id: event.id || yenovaMakeId(event.title) };
-  events.unshift(withId);
-  yenovaSaveEvents(events);
-  return withId;
+  const { data, error } = await supabase.from('events').insert([withId]).select();
+  if (error) throw error;
+  return data[0];
 }
 
-function yenovaUpdateEvent(id, updates){
-  const events = yenovaLoadEvents();
-  const idx = events.findIndex(e => e.id === id);
-  if(idx === -1) return null;
-  events[idx] = { ...events[idx], ...updates, id };
-  yenovaSaveEvents(events);
-  return events[idx];
+async function yenovaUpdateEvent(id, updates){
+  const { data, error } = await supabase.from('events').update(updates).eq('id', id).select();
+  if (error) throw error;
+  return data ? data[0] : null;
 }
 
-function yenovaDeleteEvent(id){
-  const events = yenovaLoadEvents().filter(e => e.id !== id);
-  yenovaSaveEvents(events);
+async function yenovaDeleteEvent(id){
+  const { error } = await supabase.from('events').delete().eq('id', id);
+  if (error) throw error;
 }
 
-function yenovaResetEvents(){
-  yenovaSaveEvents(YENOVA_DEFAULT_EVENTS);
+async function yenovaResetEvents(){
+  await supabase.from('events').delete().neq('id', 'dummy');
+  await supabase.from('events').insert(YENOVA_DEFAULT_EVENTS);
 }
 
 function yenovaEventStatus(event){
