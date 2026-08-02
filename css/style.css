@@ -91,7 +91,13 @@ button{ font-family:inherit; cursor:pointer; }
 }
 .brand{ display:flex; align-items:center; gap:10px; }
 .brand img{ height:34px; width:auto; }
-.brand-word{ font-family:var(--font-display); font-weight:700; font-size:19px; letter-spacing:.02em; }
+.brand-word {
+  font-family: 'Syncopate', sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+  color: var(--light);
+}
 .nav-links{ display:flex; gap:32px; align-items:center; }
 .nav-links a{
   font-size:14px; color:var(--ink-dim); font-weight:500;
