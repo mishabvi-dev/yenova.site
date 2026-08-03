@@ -8,5 +8,12 @@
       "source": "/lms/:match*",
       "destination": "https://web-yenova.vercel.app/lms/:match*"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/attendance",
+      "destination": "https://frontend-rosy-beta-70.vercel.app/faculty/dashboard",
+      "permanent": false
+    }
   ]
 }
