@@ -174,7 +174,7 @@ button{ font-family:inherit; cursor:pointer; }
 
 /* ------------------------------- Why Yenova ------------------------------- */
 .why-grid{
-  display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+  display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
   background:var(--line); border:1px solid var(--line); border-radius:var(--radius-l);
   overflow:hidden;
 }
